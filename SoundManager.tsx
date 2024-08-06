@@ -2,52 +2,58 @@
 import { Audio } from 'expo-av';
 
 class SoundManager {
-  private sound: Audio.Sound | null = null;
+  private sounds: { [key: string]: Audio.Sound } = {};
 
-  async loadSound(soundFile: any): Promise<void> {
-    if (this.sound) {
-      await this.unloadSound();
+  async loadSound(key: string, soundFile: any): Promise<void> {
+    if (this.sounds[key]) {
+      await this.unloadSound(key);
     }
-    console.log('Loading Sound');
+    console.log(`Loading Sound: ${key}`);
     const { sound } = await Audio.Sound.createAsync(soundFile);
-    this.sound = sound;
+    this.sounds[key] = sound;
   }
 
-  async playSound(): Promise<void> {
-    if (!this.sound) {
-      console.log('Sound not loaded');
+  async playSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
       return;
     }
-    console.log('Playing Sound');
-    await this.sound.playAsync();
+    console.log(`Playing Sound: ${key}`);
+    await this.sounds[key].playAsync();
   }
 
-  async pauseSound(): Promise<void> {
-    if (!this.sound) {
-      console.log('Sound not loaded');
+  async pauseSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
       return;
     }
-    console.log('Pausing Sound');
-    await this.sound.pauseAsync();
+    console.log(`Pausing Sound: ${key}`);
+    await this.sounds[key].pauseAsync();
   }
 
-  async stopSound(): Promise<void> {
-    if (!this.sound) {
-      console.log('Sound not loaded');
+  async stopSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`Sound not loaded: ${key}`);
       return;
     }
-    console.log('Stopping Sound');
-    await this.sound.stopAsync();
+    console.log(`Stopping Sound: ${key}`);
+    await this.sounds[key].stopAsync();
   }
 
-  async unloadSound(): Promise<void> {
-    if (!this.sound) {
-      console.log('No sound to unload');
+  async unloadSound(key: string): Promise<void> {
+    if (!this.sounds[key]) {
+      console.log(`No sound to unload: ${key}`);
       return;
     }
-    console.log('Unloading Sound');
-    await this.sound.unloadAsync();
-    this.sound = null;
+    console.log(`Unloading Sound: ${key}`);
+    await this.sounds[key].unloadAsync();
+    delete this.sounds[key];
+  }
+
+  async unloadAllSounds(): Promise<void> {
+    for (const key in this.sounds) {
+      await this.unloadSound(key);
+    }
   }
 }
 
